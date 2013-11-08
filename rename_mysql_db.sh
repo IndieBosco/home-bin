@@ -1,18 +1,27 @@
 #!/bin/bash
 
-# Shell script to rename a MySQL database from "olddb" to "newdb".
-# Found on http://www.rndblog.com/how-to-rename-a-database-in-mysql/
+# Shell script to rename a MySQL database from "SOURCE_DB" to
+# "DESTINATION_DB".  Found on
+# http://www.rndblog.com/how-to-rename-a-database-in-mysql/
  
-mysqlconn="mysql -u root"
-olddb=xxxx
-newdb=yyyy
- 
-#$mysqlconn -e "CREATE DATABASE $newdb"
+MYSQL_CMD="mysql -u root"
+SOURCE_DB=$1
+DESTINATION_DB=$2
+if [ -z "$SOURCE_DB" -o -z "$DESTINATION_DB" ]; then
+    echo "Rename all the MySQL tables from a SOURCE database to a DESTINATION
+database.
 
-params=$($mysqlconn -N -e "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE table_schema='$olddb'")
+USAGE: $0 SOURCE_DB DESTINATION_DB
+"
+    exit -1
+fi
+ 
+#$MYSQL_CMD -e "CREATE DATABASE $DESTINATION_DB"
+
+params=$($MYSQL_CMD -N -e "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE table_schema='$SOURCE_DB'")
  
 for name in $params; do
-      $mysqlconn -e "RENAME TABLE $olddb.$name to $newdb.$name";
-done;
+    $MYSQL_CMD -e "RENAME TABLE $SOURCE_DB.$name to $DESTINATION_DB.$name"
+done
  
-#$mysqlconn -e "DROP DATABASE $olddb"
+#$MYSQL_CMD -e "DROP DATABASE $SOURCE_DB"
